@@ -452,31 +452,10 @@ const Create = () => {
                 placeholder={t("onchain_address", { asset: asset() })}
             />
             <hr />
-            <Show when={online() && wasmSupported()}>
-                <button
-                    id="create-swap"
-                    class="btn"
-                    disabled={buttonDisable() ? "disabled" : ""}
-                    onClick={() => {
-                        setButtonDisable(true);
-                        create()
-                            .then((res) => !res && setButtonDisable(false))
-                            .catch((e) => {
-                                log.warn("create failed", e);
-                                setButtonDisable(false);
-                            });
-                    }}>
-                    {t("create_swap")}
-                </button>
-            </Show>
-            <Show when={!online()}>
-                <button
-                    id="create-swap"
-                    class="btn btn-danger"
-                    onClick={fetchPairs}>
-                    {t("api_offline")}
-                </button>
-            </Show>
+            <button class="btn btn-danger">
+                liquid.boltz.exchange is going to be deprecated soon. Please go
+                to boltz.exchange
+            </button>
             <Show when={!wasmSupported()}>
                 <button
                     id="create-swap"
