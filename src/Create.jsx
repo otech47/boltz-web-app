@@ -1,4 +1,5 @@
 import log from "loglevel";
+import AutoNumeric from 'autonumeric';
 import { createMemo, createSignal, createEffect, on, onMount } from "solid-js";
 import * as secp from "@noble/secp256k1";
 import { ECPair } from "./ecpair/ecpair";
@@ -33,12 +34,8 @@ import {
     denomination,
     sendAmount,
     setSendAmount,
-    sendAmountFormatted,
-    setSendAmountFormatted,
     receiveAmount,
     setReceiveAmount,
-    receiveAmountFormatted,
-    setReceiveAmountFormatted,
     minimum,
     maximum,
     reverse,
@@ -64,9 +61,22 @@ import {
 
 const Create = () => {
     let invoiceInputRef, receiveAmountRef, sendAmountRef, addressInputRef;
+    let sendAmountNumeric, receiveAmountNumeric;
+
+    let options_denom_sat = {
+        digitGroupSeparator: " ",
+        decimalPlaces: 0,
+    };
+    let options_denom_btc = {
+        digitGroupSeparator: " ",
+        decimalPlaces: 8,
+    };
 
     onMount(() => {
         sendAmountRef.focus();
+        let options = denomination() == denominations.sat ? options_denom_sat : options_denom_btc;
+        sendAmountNumeric = new AutoNumeric(sendAmountRef, options);
+        receiveAmountNumeric = new AutoNumeric(receiveAmountRef, options);
     });
 
     const [firstLoad, setFirstLoad] = createSignal(true);
@@ -102,11 +112,14 @@ const Create = () => {
     });
 
     // change denomination
-    createMemo(() => {
-        setReceiveAmountFormatted(
-            formatAmount(Number(receiveAmount())).toString()
-        );
-        setSendAmountFormatted(formatAmount(Number(sendAmount())).toString());
+    createEffect(() => {
+        let options = denomination() == denominations.sat ? options_denom_sat : options_denom_btc;
+        // if (minimum() > 0) {
+        //     options.minimumValue = formatAmount(minimum());
+        //     options.maximumValue = formatAmount(maximum());
+        // }
+        receiveAmountNumeric.update(options).set(formatAmount(receiveAmount()));
+        sendAmountNumeric.update(options).set(formatAmount(sendAmount()));
     });
 
     // validation swap
@@ -139,9 +152,9 @@ const Create = () => {
         }
     };
 
-    const changeReceiveAmount = (e) => {
-        const amount = e.currentTarget.value.trim();
-        const satAmount = convertAmount(Number(amount), denominations.sat);
+    const changeReceiveAmount = () => {
+        const amount = receiveAmountNumeric.getNumber();
+        const satAmount = convertAmount(amount);
         const sendAmount = calculateSendAmount(satAmount);
         setReceiveAmount(BigInt(satAmount));
         setSendAmount(sendAmount);
@@ -149,9 +162,9 @@ const Create = () => {
         checkInvoice();
     };
 
-    const changeSendAmount = (e) => {
-        const amount = e.currentTarget.value.trim();
-        const satAmount = convertAmount(Number(amount), denominations.sat);
+    const changeSendAmount = () => {
+        const amount = sendAmountNumeric.getNumber();
+        const satAmount = convertAmount(amount, denominations.sat);
         const receiveAmount = calculateReceiveAmount(satAmount);
         setSendAmount(BigInt(satAmount));
         setReceiveAmount(BigInt(receiveAmount));
@@ -390,9 +403,8 @@ const Create = () => {
                             denomination() == "btc" ? "decimal" : "numeric"
                         }
                         id="sendAmount"
-                        value={sendAmountFormatted()}
                         onpaste={(e) => validatePaste(e)}
-                        onKeypress={(e) => validateInput(e)}
+                        // onKeypress={(e) => validateInput(e)}
                         onInput={(e) => changeSendAmount(e)}
                     />
                 </div>
@@ -417,9 +429,8 @@ const Create = () => {
                             denomination() == "btc" ? "decimal" : "numeric"
                         }
                         id="receiveAmount"
-                        value={receiveAmountFormatted()}
                         onpaste={(e) => validatePaste(e)}
-                        onKeypress={(e) => validateInput(e)}
+                        // onKeypress={(e) => validateInput(e)}
                         onInput={(e) => changeReceiveAmount(e)}
                     />
                 </div>
@@ -443,7 +454,7 @@ const Create = () => {
                 name="invoice"
                 value={invoice()}
                 placeholder={t("create_and_paste", {
-                    amount: receiveAmountFormatted(),
+                    amount: formatAmount(receiveAmount()),
                     denomination: denomination(),
                 })}></textarea>
             <input
