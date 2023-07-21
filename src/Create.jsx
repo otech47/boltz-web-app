@@ -363,7 +363,7 @@ const Create = () => {
             }
         }
         if (
-            calculateDigits() == input.value.replace(" ", "").length &&
+            calculateDigits() == input.value.length &&
             input.selectionStart !== input.value.length
         ) {
             const normalizedKeyCode =
@@ -373,6 +373,9 @@ const Create = () => {
             if (isDigit) {
                 let index = input.selectionStart;
                 if (input.value[index] === " ") {
+                    index++;
+                }
+                if (input.value[index] === ".") {
                     index++;
                 }
                 input.value =
