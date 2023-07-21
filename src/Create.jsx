@@ -113,11 +113,15 @@ const Create = () => {
         setTimeout(() => {
             ref.setSelectionRange(selectionIndex, selectionIndex);
         }, 1);
-    }
+    };
 
     // format receive amount
     createEffect(() => {
-        changeFormatted(receiveAmountRef, setReceiveAmountFormatted, receiveAmount());
+        changeFormatted(
+            receiveAmountRef,
+            setReceiveAmountFormatted,
+            receiveAmount()
+        );
     });
 
     // format send amount
@@ -307,26 +311,36 @@ const Create = () => {
         const theEvent = evt || window.event;
         const input = evt.currentTarget;
         let keycode = theEvent.keyCode || theEvent.which;
-        if  (keycode === 37) {
+        if (keycode === 37) {
             // left arrow
-            if (input.value[input.selectionStart-2] === " ") {
-                input.setSelectionRange(input.selectionStart - 1, input.selectionStart - 1);
+            if (input.value[input.selectionStart - 2] === " ") {
+                input.setSelectionRange(
+                    input.selectionStart - 1,
+                    input.selectionStart - 1
+                );
             }
         } else if (keycode === 39) {
             // right arrow
             if (input.value[input.selectionStart] === " ") {
-                input.setSelectionRange(input.selectionStart + 1, input.selectionStart + 1);
+                input.setSelectionRange(
+                    input.selectionStart + 1,
+                    input.selectionStart + 1
+                );
             }
         } else if (keycode === 8) {
             // backspace
-            if (input.value[input.selectionStart-1] === " ") {
+            if (input.value[input.selectionStart - 1] === " ") {
                 const index = input.selectionStart;
-                input.value = input.value.substring(0, index - 2) + input.value.substring(index);
-                input.setSelectionRange(index-1, index-1);
-                input.dispatchEvent(new Event('input', {
-                    'bubbles': true,
-                    'cancelable': true
-                }));
+                input.value =
+                    input.value.substring(0, index - 2) +
+                    input.value.substring(index);
+                input.setSelectionRange(index - 1, index - 1);
+                input.dispatchEvent(
+                    new Event("input", {
+                        bubbles: true,
+                        cancelable: true,
+                    })
+                );
                 theEvent.returnValue = false;
                 if (theEvent.preventDefault) theEvent.preventDefault();
             }
@@ -334,18 +348,26 @@ const Create = () => {
             // delete
             if (input.value[input.selectionStart] === " ") {
                 const index = input.selectionStart;
-                input.value = input.value.substring(0, index) + input.value.substring(index + 2);
+                input.value =
+                    input.value.substring(0, index) +
+                    input.value.substring(index + 2);
                 input.setSelectionRange(index, index);
-                input.dispatchEvent(new Event('input', {
-                    'bubbles': true,
-                    'cancelable': true
-                }));
+                input.dispatchEvent(
+                    new Event("input", {
+                        bubbles: true,
+                        cancelable: true,
+                    })
+                );
                 theEvent.returnValue = false;
                 if (theEvent.preventDefault) theEvent.preventDefault();
             }
         }
-        if (calculateDigits() == input.value.replace(" ", "").length && input.selectionStart !== input.value.length) {
-            const normalizedKeyCode = keycode >= 96 && keycode <= 105 ? keycode - 48 : keycode;
+        if (
+            calculateDigits() == input.value.replace(" ", "").length &&
+            input.selectionStart !== input.value.length
+        ) {
+            const normalizedKeyCode =
+                keycode >= 96 && keycode <= 105 ? keycode - 48 : keycode;
             const isDigit = normalizedKeyCode >= 48 && normalizedKeyCode <= 57;
             const digit = String.fromCharCode(normalizedKeyCode);
             if (isDigit) {
@@ -353,7 +375,10 @@ const Create = () => {
                 if (input.value[index] === " ") {
                     index++;
                 }
-                input.value = input.value.substring(0, index) + digit + input.value.substring(index + 1);
+                input.value =
+                    input.value.substring(0, index) +
+                    digit +
+                    input.value.substring(index + 1);
                 if (input.value[index + 1] === " ") {
                     index++;
                 }
@@ -361,10 +386,12 @@ const Create = () => {
                     index++;
                 }
                 input.setSelectionRange(index, index);
-                input.dispatchEvent(new Event('input', {
-                    'bubbles': true,
-                    'cancelable': true
-                }));
+                input.dispatchEvent(
+                    new Event("input", {
+                        bubbles: true,
+                        cancelable: true,
+                    })
+                );
             }
         }
     };
@@ -477,7 +504,10 @@ const Create = () => {
                         onKeyDown={(e) => validateKeyDown(e)}
                         onKeypress={(e) => validateInput(e)}
                         onInput={(e) => changeSendAmount(e)}
-                        onSelect={(e) => e.currentTarget.selectionStart = e.currentTarget.selectionEnd}
+                        onSelect={(e) =>
+                            (e.currentTarget.selectionStart =
+                                e.currentTarget.selectionEnd)
+                        }
                     />
                 </div>
                 <div
@@ -506,7 +536,10 @@ const Create = () => {
                         onKeyDown={(e) => validateKeyDown(e)}
                         onKeypress={(e) => validateInput(e)}
                         onInput={(e) => changeReceiveAmount(e)}
-                        onSelect={(e) => e.currentTarget.selectionStart = e.currentTarget.selectionEnd}
+                        onSelect={(e) =>
+                            (e.currentTarget.selectionStart =
+                                e.currentTarget.selectionEnd)
+                        }
                     />
                 </div>
             </div>
